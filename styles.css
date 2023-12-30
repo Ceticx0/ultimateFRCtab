@@ -1,0 +1,79 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#info {
+    position: absolute; 
+    left: 0; 
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    margin-top: auto; 
+    margin-bottom: auto; 
+    margin-left: auto; 
+    margin-right: auto; 
+    width: fit-content;
+    height: fit-content;
+
+    min-width: 500px;
+    border-radius: 15px;
+    background: rgba(0, 0, 0, 0.7);
+    text-align: center;
+    z-index: 1;
+    color:ghostwhite;
+    transition: 0.3s;
+    opacity: 1;
+}
+
+#info:hover {
+    opacity: 0;
+}
+
+h1 {
+    font-size: 150px;
+    font-weight: 100;
+    margin: 0;
+}
+h2 {
+    font-size: 50px;
+    font-weight: 300;
+    margin: 3px;
+}
+h3 {
+    font-size: 30px;
+    font-weight: 300;
+    margin: 5px;
+}
+
+#teamimg {
+    /* background-image: url('https://i.imgur.com/QrWp1hTh.jpg'); */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+}
+
+/* Fills the empty space with red color */
+#backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    /* background-image: url("https://i.imgur.com/QrWp1hTh.jpg"); */
+    filter: blur(8px);
+    -webkit-filter: blur(8px);
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: darken;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+}
