@@ -22,7 +22,7 @@ async function displayTeamInfo(teamNum, year=2023) {
     doc.name.textContent = data.name;
     doc.end_epa.textContent = data.epa_end;
 }
-async function setTeamImage(teamkey, year=2023) {
+async function getTeamImageSoruce(teamkey, year=2023) {
     try {
         const response = await fetch('https://www.thebluealliance.com/api/v3/team/' + teamkey +  '/media/' + year + '?X-TBA-Auth-Key=IJ7ECNmOibpHt04EdVs4xS7q5OQkIY5GE7USErbLXK3i4obXAilhJD8VP590o8Ur');
         if (!response.ok) {
@@ -49,54 +49,54 @@ async function setTeamImage(teamkey, year=2023) {
                     src = photo.direct_url;
                     break;
                 case 'cdphotothread':
-                    console.log("WE FOUND ONE: " + teamkey)
+                    console.log("WE FOUND ONE: " + teamkey);
                     debugger;
                     src = 'https://www.chiefdelphi.com/media/img/' + photo.details.image_partial;
                     break;
             }
-            setBackgroundImage(src);
+            return src;
         } else {
             console.log("THIS TEAM DOESN'T HAVE ANY IMAGES:" + teamkey);
+            return;
         }
     } catch (error) {
         console.error('Error fetching team media:', error);
-    }
-}
-
-
-// async function tryGetImage() {
-//     const teamKey = 'frc' + teams_2023[Math.floor(Math.random() * teams_2023.length)];
-//     // const teamKey = 'frc4336'
-//     console.log(teamKey)
-//     await setTeamImage(teamKey);
-//     const backgroundImage = doc.teamimg.style.backgroundImage;
-//     if (backgroundImage === 'none' || backgroundImage === '') {
-//         // If the team doesn't have any images, retry
-//         await tryGetImage();
-//     } else {
-//         displayTeamInfo(teamKey.substring(3))
-//     }
-// }
-
-async function tryGetImages(count) {
-    if (count <= 0) {
-        console.log("at least 1 at a time pls");
         return;
     }
-
-    const teamKey = 'frc' + teams_2023[Math.floor(Math.random() * teams_2023.length)];
-    console.log(teamKey);
-
-    await setTeamImage(teamKey);
-    const backgroundImage = doc.teamimg.style.backgroundImage;
-
-    if (backgroundImage === 'none' || backgroundImage === '') {
-        // If the team doesn't have any images, retry with reduced count
-        await tryGetImages(count - 1);
-    } else {
-        displayTeamInfo(teamKey.substring(3));
-    }
 }
 
+async function tryGetImage() {
+    const teamKey = 'frc' + teams_2023[Math.floor(Math.random() * teams_2023.length)];
+    console.log(teamKey)
+    src = await getTeamImageSoruce(teamKey);
+    setBackgroundImage(src)
+    displayTeamInfo(teamKey.substring(3))
+}
 
-tryGetImage(3)
+async function GetImages(concurrencyLimit) {
+    const teamKeys = Array.from({ length: concurrencyLimit }, () => 'frc' + teams_2023[Math.floor(Math.random() * teams_2023.length)]);
+
+    try {
+        const results = await Promise.any(teamKeys.map(async (teamKey) => {
+            console.log(teamKey);
+            image_src = await getTeamImageSoruce(teamKey);
+            if (image_src) {
+                return [image_src, teamKey];
+            } else {
+                throw new Error("Team does not have images");
+            }
+
+        }));
+
+        const [team_image_src, working_team] = results;
+        setBackgroundImage(team_image_src);
+        displayTeamInfo(working_team.substring(3));
+
+    } catch (AggregateError) {
+        console.log("No teams had images, retrying");
+        await tryGetImages(concurrencyLimit);
+    }
+
+}
+
+GetImages(3);
