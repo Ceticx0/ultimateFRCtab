@@ -22,7 +22,7 @@ async function displayTeamInfo(teamNum, year=2023) {
     doc.name.textContent = data.name;
     doc.end_epa.textContent = data.epa_end;
 }
-async function getTeamImageSoruce(teamkey, year=2023) {
+async function getTeamImageSource(teamkey, year=2023) {
     try {
         const response = await fetch('https://www.thebluealliance.com/api/v3/team/' + teamkey +  '/media/' + year + '?X-TBA-Auth-Key=IJ7ECNmOibpHt04EdVs4xS7q5OQkIY5GE7USErbLXK3i4obXAilhJD8VP590o8Ur');
         if (!response.ok) {
@@ -68,7 +68,7 @@ async function getTeamImageSoruce(teamkey, year=2023) {
 async function tryGetImage() {
     const teamKey = 'frc' + teams_2023[Math.floor(Math.random() * teams_2023.length)];
     console.log(teamKey)
-    src = await getTeamImageSoruce(teamKey);
+    src = await getTeamImageSource(teamKey);
     setBackgroundImage(src)
     displayTeamInfo(teamKey.substring(3))
 }
@@ -79,7 +79,7 @@ async function GetImages(concurrencyLimit) {
     try {
         const results = await Promise.any(teamKeys.map(async (teamKey) => {
             console.log(teamKey);
-            image_src = await getTeamImageSoruce(teamKey);
+            image_src = await getTeamImageSource(teamKey);
             if (image_src) {
                 return [image_src, teamKey];
             } else {
@@ -94,7 +94,7 @@ async function GetImages(concurrencyLimit) {
 
     } catch (AggregateError) {
         console.log("No teams had images, retrying");
-        await tryGetImages(concurrencyLimit);
+        await GetImages(concurrencyLimit);
     }
 
 }
