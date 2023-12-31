@@ -1,8 +1,8 @@
 {
 	"manifest_version": 2,
-	"name": "Custom New Tab Page",
+	"name": "UltimateFRCTab",
 	"version": "1.0",
-	"description": "A Firefox extension that replaces the new tab page with a custom page.",
+	"description": "This extension replaces the newtab page with a random frc team's photo and information, it can also be configured to show teams from only specific events",
 	"chrome_url_overrides": {
 	  "newtab": "newtab.html"
 	},
