@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>ultimateFRCtab Settings</title>
+    <link rel="stylesheet" href="css/options.css">
+</head>
+
+<body>
+    <h1>ultimateFRCtab Settings</h1>
+    <div class="checkbox">
+        <!-- <p></p> -->
+        <input type="checkbox" id="imageapathy">
+        <label for="imageapathy">Show teams without images</label>
+    </div>
+
+    <p>URL of default image for if team doesn't have one</p>
+    <textarea cols="50" rows="1" id="defaultimg" placeholder="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.redd.it%2F881umbrg6v321.png&f=1&nofb=1"></textarea>
+    <br />
+    <br />
+    <p>Year to select teams from</p>
+    <select name="year" id="year">
+        <option value="2022">2022</option>
+        <option value="2023">2023</option>
+    </select>
+    <br />
+    <br />
+    <br />
+    <div class="checkbox">
+        <!-- <p></p> -->
+        <input type="checkbox" id="eventTeams">
+        <label for="eventTeams">Show teams competing at specific event only</label>
+    </div>
+
+    <p>Event key to pick teams from (found in tba url)</p>
+    <textarea cols="15" rows="1" id="event" placeholder="2023midtr"></textarea>
+    <br />
+    <br />
+
+    <p>Based on <a href="https://github.com/ErikBoesen/FRCNewTab">Erik Boesen's FRCNewTab</a></p>
+    <p>Source code on <a href="https://github.com/Ceticx0/ultimateFRCtab">GitHub</a></p>
+    <script src="init_options.js"></script>
+    <script src="options.js"></script>
+</body>
+
+</html>

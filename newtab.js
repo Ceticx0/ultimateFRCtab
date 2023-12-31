@@ -20,7 +20,7 @@ async function displayTeamInfo(teamNum, year=2023) {
     const data = await response.json();
     doc.number.textContent = data.team;
     doc.name.textContent = data.name;
-    doc.end_epa.textContent = data.epa_end;
+    doc.end_epa.textContent = data.epa_end + " End EPA";
 }
 async function getTeamImageSource(teamkey, year=2023) {
     try {
@@ -69,6 +69,7 @@ async function tryGetImage() {
     const teamKey = 'frc' + teams_2023[Math.floor(Math.random() * teams_2023.length)];
     console.log(teamKey)
     src = await getTeamImageSource(teamKey);
+    if (!src) src = localStorage.defaultimg;
     setBackgroundImage(src)
     displayTeamInfo(teamKey.substring(3))
 }
@@ -99,4 +100,8 @@ async function GetImages(concurrencyLimit) {
 
 }
 
-GetImages(3);
+if (JSON.parse(localStorage.imageapathy)) {
+    tryGetImage()
+} else {
+    GetImages(3);
+}
