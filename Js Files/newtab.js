@@ -74,7 +74,7 @@ async function getTeamImageSource(teamkey, year) {
             }
             return src;
         } else {
-            console.log("THIS TEAM DOESN'T HAVE ANY IMAGES:" + teamkey);
+            console.log("Team has no images:" + teamkey);
             return;
         }
     } catch (error) {
@@ -89,7 +89,6 @@ async function tryGetImage(year) {
     } else {
         var teamKey = getRandomTeamKeyFromYear(year)
     }
-    console.log(teamKey)
     src = await getTeamImageSource(teamKey, year);
     if (!src) src = localStorage.defaultimg;
     setBackgroundImage(src)
@@ -104,7 +103,6 @@ async function GetImages(concurrencyLimit, year) {
     }
     try {
         const results = await Promise.any(teamKeys.map(async (teamKey) => {
-            console.log(teamKey);
             image_src = await getTeamImageSource(teamKey, year);
             if (image_src) {
                 return [image_src, teamKey];
