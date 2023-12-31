@@ -5,7 +5,21 @@ var options = {
     eventTeams: document.getElementById('eventTeams'),
     event: document.getElementById('event'),
 };
+setkeyBtn = document.getElementById('setkey');
+setkeyBtn.onclick = saveTeamList;
 
+async function saveTeamList() {
+    eventKey = options.event.value
+    url = `https://www.thebluealliance.com/api/v3/event/${eventKey}/teams/keys?X-TBA-Auth-Key=` + tba_auth_key;
+    const response = await fetch(url);
+    if (!response.ok) {
+        console.log(response)
+        throw new Error('Network response was not ok');
+    }
+    const data = await response.json()
+    localStorage.selectedEventTeams = JSON.stringify(data) 
+    console.log("Set Event Key!");
+}
 // If the custom team list is valid, put it into the textbox.
 // If the list doesn't exist or isn't valid, the textbox will be left empty.
 if (localStorage.event !== undefined && localStorage.event !== 'undefined' && localStorage.event !== '') {
