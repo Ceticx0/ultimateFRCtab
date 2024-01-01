@@ -5,10 +5,6 @@
 	"description": "Replaces the Newtab page with an image and information on a random FRC team",
 	"chrome_url_overrides": {
 	  "newtab": "newtab.html"
-	},
-	"permissions": [
-	  "storage"
-	]
-	
+	}	
 }
   
