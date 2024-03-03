@@ -22,6 +22,8 @@ function getRandomTeamKeyFromYear(year) {
             teams_list = teams_2022;
         case 2023:
             teams_list = teams_2023;
+        case 2024:
+            teams_list = teams_2024;
     }
 
     return 'frc' + teams_list[Math.floor(Math.random() * teams_list.length)];
@@ -124,7 +126,7 @@ async function GetImages(concurrencyLimit, year) {
 }
 
 selected_year = JSON.parse(localStorage.year);
-if (JSON.parse(localStorage.imageapathy)) {
+if (JSON.parse(localStorage.imageapathy) || selected_year == 2024) {
     tryGetImage(selected_year)
 } else {
     GetImages(3, selected_year);
