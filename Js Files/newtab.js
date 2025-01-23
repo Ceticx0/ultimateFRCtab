@@ -11,8 +11,14 @@ function setBackgroundImage(src) {
     doc.teamimg.style.backgroundImage = `url("${src}")`;
 }
 
-function getRandomTeamKeyFromEvent() {
+function getRandomTeamKeyFromEvent(excludedTeams = []) {
     keys_list = JSON.parse(localStorage.selectedEventTeams);
+    for (const team of excludedTeams) {
+        index = keys_list.indexOf(team);
+        if (index > -1) {
+            keys_list.splice(index, 1);
+        }
+    }
     return keys_list[Math.floor(Math.random() * keys_list.length)];
 }
 
@@ -29,36 +35,19 @@ function getRandomTeamKeyFromYear(year) {
     return 'frc' + teams_list[Math.floor(Math.random() * teams_list.length)];
 }
 
-async function fetchAndCacheImage(src) {
-    try {
-        const response = await fetch(src, {
-            method: 'GET',
-            redirect: 'manual',
-            cache: 'default',
-        });
-
-        if (response.status >= 300 && response.status < 400) {
-            console.warn(`Redirect detected for URL: ${src} -> ${response.headers.get('Location')}`);
-            return null;
-        }
-
-        if (response.ok) {
-            return src;
-        } else {
-            console.warn(`Failed to load image: ${src} (Status: ${response.status})`);
-            return null;
-        }
-
-    } catch (error) {
-        console.error(`Error fetching image ${src}: ${error.message}`);
-        return null;
-    }
+async function preloadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = src;
+    });
 }
 
 async function getValidImageSrc(photos) {
     for (const photo of photos) {
         const src = getPhotoSrc(photo);
-        const isValid = await fetchAndCacheImage(src);
+        const isValid = await preloadImage(src);
         if (isValid) {
             return src;
         }
@@ -97,8 +86,8 @@ async function getTeamImageSource(teamkey, year) {
             }
         });
 
-        if (photo && photo.src) {
-            validSrc = await fetchAndCacheImage(photo.src);
+        if (photo) {
+            validSrc = await preloadImage(photo.src);
             if (validSrc) return validSrc;
         }
         if (photos.length > 0) {
@@ -124,8 +113,6 @@ function getPhotoSrc(photo){
             debugger;
             src = 'https://www.chiefdelphi.com/media/img/' + photo.details.image_partial;
             break;
-        default:
-            src = photo.direct_url
     }
     return src;
 }
@@ -141,11 +128,16 @@ async function tryGetImage(year) {
     displayTeamInfo(teamKey.substring(3), year)
 }
 
-async function GetImages(concurrencyLimit, year) {
+async function GetImages(concurrencyLimit, year, excludedTeams = []) {
     if (JSON.parse(localStorage.eventTeams)) {
-        var teamKeys = Array.from({ length: concurrencyLimit }, () => (getRandomTeamKeyFromEvent()));
+        var teamKeys = Array.from({ length: concurrencyLimit }, () => (getRandomTeamKeyFromEvent(excludedTeams)));
     } else {
         var teamKeys = Array.from({ length: concurrencyLimit }, () => (getRandomTeamKeyFromYear(year)));
+    }
+    if (teamKeys.length === 0) {
+        console.log("No teams with images found");
+        tryGetImage(year);
+        return;
     }
     try {
         const results = await Promise.any(teamKeys.map(async (teamKey) => {
@@ -164,13 +156,13 @@ async function GetImages(concurrencyLimit, year) {
 
     } catch (AggregateError) {
         console.log("No teams had images, retrying");
-        await GetImages(concurrencyLimit, year);
+        await GetImages(concurrencyLimit, year, excludedTeams.concat(teamKeys));
     }
 
 }
 
 selected_year = JSON.parse(localStorage.year);
-if (JSON.parse(localStorage.imageapathy) || selected_year == 2024) {
+if (JSON.parse(localStorage.imageapathy)) {
     tryGetImage(selected_year)
 } else {
     GetImages(3, selected_year);
