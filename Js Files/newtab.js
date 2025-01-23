@@ -44,19 +44,19 @@ async function fetchAndCacheImage(src) {
         });
 
         if (response.status >= 300 && response.status < 400) {
-            console.warn(`Redirect detected for URL: ${src} -> ${response.headers.get('Location')}`);
+            // console.warn(`Redirect detected for URL: ${src} -> ${response.headers.get('Location')}`);
             return null;
         }
 
         if (response.ok) {
             return src;
         } else {
-            console.warn(`Failed to load image: ${src} (Status: ${response.status})`);
+            // console.warn(`Failed to load image: ${src} (Status: ${response.status})`);
             return null;
         }
 
     } catch (error) {
-        console.error(`Error fetching image ${src}: ${error.message}`);
+        // console.error(`Error fetching image ${src}: ${error.message}`);
         return null;
     }
 }
