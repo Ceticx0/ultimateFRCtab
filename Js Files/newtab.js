@@ -29,6 +29,25 @@ function getRandomTeamKeyFromYear(year) {
     return 'frc' + teams_list[Math.floor(Math.random() * teams_list.length)];
 }
 
+async function preloadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = src;
+    });
+}
+
+async function getValidImageSrc(photos) {
+    for (const photo of photos) {
+        const src = getPhotoSrc(photo);
+        const isValid = await preloadImage(src);
+        if (isValid) {
+            return src;
+        }
+    }
+    return null;
+}
 
 async function displayTeamInfo(teamNum, year) {
     url = `https://api.statbotics.io/v2/team_year/${teamNum}/${year}`
@@ -60,31 +79,37 @@ async function getTeamImageSource(teamkey, year) {
                 photos.push(item)
             }
         });
-        if (!photo && photos.length > 0) {
-            photo = photos[0];
-        }
+
         if (photo) {
-            switch (photo.type) {
-                case 'imgur':
-                    src = photo.direct_url;
-                    break;
-                case 'cdphotothread':
-                    console.log("WE FOUND ONE: " + teamkey);
-                    debugger;
-                    src = 'https://www.chiefdelphi.com/media/img/' + photo.details.image_partial;
-                    break;
-            }
-            return src;
-        } else {
-            console.log("Team has no images:" + teamkey);
-            return;
+            validSrc = await preloadImage(photo.src);
+            if (validSrc) return validSrc;
         }
+        if (photos.length > 0) {
+            validSrc = await getValidImageSrc(photos);
+            if (validSrc) return validSrc;
+        }
+        console.log("Team has no images:" + teamkey);
+        return;
+
     } catch (error) {
         console.error(error);
         throw new Error("Error fetching team media");
     }
 }
 
+function getPhotoSrc(photo){
+    switch (photo.type) {
+        case 'imgur':
+            src = photo.direct_url;
+            break;
+        case 'cdphotothread':
+            console.log("WE FOUND ONE: " + teamkey);
+            debugger;
+            src = 'https://www.chiefdelphi.com/media/img/' + photo.details.image_partial;
+            break;
+    }
+    return src;
+}
 async function tryGetImage(year) {
     if (JSON.parse(localStorage.eventTeams)) {
         var teamKey = getRandomTeamKeyFromEvent();
@@ -126,7 +151,7 @@ async function GetImages(concurrencyLimit, year) {
 }
 
 selected_year = JSON.parse(localStorage.year);
-if (JSON.parse(localStorage.imageapathy) || selected_year == 2024) {
+if (JSON.parse(localStorage.imageapathy)) {
     tryGetImage(selected_year)
 } else {
     GetImages(3, selected_year);

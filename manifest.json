@@ -1,7 +1,7 @@
 {
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"name": "UltimateFRCTab",
-	"version": "1.0.1",
+	"version": "1.0.3",
 	"description": "Replaces the Newtab page with an image and information on a random FRC team",
 	"chrome_url_overrides": {
 	  "newtab": "newtab.html"
