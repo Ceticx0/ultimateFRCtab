@@ -35,19 +35,36 @@ function getRandomTeamKeyFromYear(year) {
     return 'frc' + teams_list[Math.floor(Math.random() * teams_list.length)];
 }
 
-async function preloadImage(src) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(false);
-        img.src = src;
-    });
+async function fetchAndCacheImage(src) {
+    try {
+        const response = await fetch(src, {
+            method: 'GET',
+            redirect: 'manual',
+            cache: 'default',
+        });
+
+        if (response.status >= 300 && response.status < 400) {
+            console.warn(`Redirect detected for URL: ${src} -> ${response.headers.get('Location')}`);
+            return null;
+        }
+
+        if (response.ok) {
+            return src;
+        } else {
+            console.warn(`Failed to load image: ${src} (Status: ${response.status})`);
+            return null;
+        }
+
+    } catch (error) {
+        console.error(`Error fetching image ${src}: ${error.message}`);
+        return null;
+    }
 }
 
 async function getValidImageSrc(photos) {
     for (const photo of photos) {
         const src = getPhotoSrc(photo);
-        const isValid = await preloadImage(src);
+        const isValid = await fetchAndCacheImage(src);
         if (isValid) {
             return src;
         }
@@ -86,8 +103,8 @@ async function getTeamImageSource(teamkey, year) {
             }
         });
 
-        if (photo) {
-            validSrc = await preloadImage(photo.src);
+        if (photo && photo.src) {
+            validSrc = await fetchAndCacheImage(photo.src);
             if (validSrc) return validSrc;
         }
         if (photos.length > 0) {
@@ -113,6 +130,8 @@ function getPhotoSrc(photo){
             debugger;
             src = 'https://www.chiefdelphi.com/media/img/' + photo.details.image_partial;
             break;
+        default:
+            src = photo.direct_url
     }
     return src;
 }
