@@ -11,8 +11,14 @@ function setBackgroundImage(src) {
     doc.teamimg.style.backgroundImage = `url("${src}")`;
 }
 
-function getRandomTeamKeyFromEvent() {
+function getRandomTeamKeyFromEvent(excludedTeams = []) {
     keys_list = JSON.parse(localStorage.selectedEventTeams);
+    for (const team of excludedTeams) {
+        index = keys_list.indexOf(team);
+        if (index > -1) {
+            keys_list.splice(index, 1);
+        }
+    }
     return keys_list[Math.floor(Math.random() * keys_list.length)];
 }
 
@@ -122,11 +128,16 @@ async function tryGetImage(year) {
     displayTeamInfo(teamKey.substring(3), year)
 }
 
-async function GetImages(concurrencyLimit, year) {
+async function GetImages(concurrencyLimit, year, excludedTeams = []) {
     if (JSON.parse(localStorage.eventTeams)) {
-        var teamKeys = Array.from({ length: concurrencyLimit }, () => (getRandomTeamKeyFromEvent()));
+        var teamKeys = Array.from({ length: concurrencyLimit }, () => (getRandomTeamKeyFromEvent(excludedTeams)));
     } else {
         var teamKeys = Array.from({ length: concurrencyLimit }, () => (getRandomTeamKeyFromYear(year)));
+    }
+    if (teamKeys.length === 0) {
+        console.log("No teams with images found");
+        tryGetImage(year);
+        return;
     }
     try {
         const results = await Promise.any(teamKeys.map(async (teamKey) => {
@@ -145,7 +156,7 @@ async function GetImages(concurrencyLimit, year) {
 
     } catch (AggregateError) {
         console.log("No teams had images, retrying");
-        await GetImages(concurrencyLimit, year);
+        await GetImages(concurrencyLimit, year, excludedTeams.concat(teamKeys));
     }
 
 }
