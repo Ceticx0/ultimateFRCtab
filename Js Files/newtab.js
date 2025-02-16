@@ -73,7 +73,7 @@ async function getValidImageSrc(photos) {
 }
 
 async function displayTeamInfo(teamNum, year) {
-    url = `https://api.statbotics.io/v2/team_year/${teamNum}/${year}`
+    url = `https://api.statbotics.io/v3/team_year/${teamNum}/${year}`
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -81,7 +81,7 @@ async function displayTeamInfo(teamNum, year) {
     const data = await response.json();
     doc.number.textContent = data.team;
     doc.name.textContent = data.name;
-    doc.end_epa.textContent = data.epa_end + " End EPA";
+    doc.end_epa.textContent = data.epa.total_points.mean + " End EPA";
 }
 
 async function getTeamImageSource(teamkey, year) {
